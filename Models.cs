@@ -1,13 +1,13 @@
 namespace MetadataOne;
-public class Order
+public class Orders
 {
     public int OrderId { get; set; }
     public string? CustomerName { get; set; }
     public string? CustomerEmail { get; set; }
-    public List<OrderItem> OrderItems { get; set; } = new();
+    public List<OrderItems> OrderItems { get; set; } = new();
 }
 
-public class OrderItem
+public class OrderItems
 {
     public int OrderItemId { get; set; }
     public int OrderId { get; set; }

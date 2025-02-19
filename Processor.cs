@@ -24,20 +24,26 @@ public class CsvProcessor
         }
 
         string metadataJson = File.ReadAllText(metadataPath);
-        
+
         if (string.IsNullOrEmpty(metadataJson))
         {
             throw new ArgumentException("Metadata JSON is empty.");
         }
 
-        var config = JsonSerializer.Deserialize<MetadataConfig>(metadataJson);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase, // Match JSON's camelCase naming
+            // PropertyNameCaseInsensitive = true
+        };
+
+        var config = JsonSerializer.Deserialize<MetadataConfig>(metadataJson, options);
         _config = config ?? throw new ArgumentException("Invalid metadata JSON.");
     }
 
-    public List<Order> LoadOrders(string ordersFilePath, string orderItemsFilePath)
+    public List<Orders> LoadOrders(string ordersFilePath, string orderItemsFilePath)
     {
-        var orders = ReadCsv<Order>(ordersFilePath);
-        var orderItems = ReadCsv<OrderItem>(orderItemsFilePath);
+        var orders = ReadCsv<Orders>(ordersFilePath);
+        var orderItems = ReadCsv<OrderItems>(orderItemsFilePath);
 
         // Assign OrderItems to Orders
         var orderDict = orders.ToDictionary(o => o.OrderId);
@@ -59,7 +65,7 @@ public class CsvProcessor
         return csv.GetRecords<T>().ToList();
     }
 
-    private List<Order> TransformData(List<Order> orders)
+    private List<Orders> TransformData(List<Orders> orders)
     {
         foreach (var order in orders)
         {
