@@ -7,7 +7,7 @@ using CsvHelper.Configuration;
 namespace MetadataOne;
 public class MetadataConfig
 {
-    public Dictionary<string, Dictionary<string, string>>? Mappings { get; set; }
+    // public Dictionary<string, Dictionary<string, string>>? Mappings { get; set; }
     public Dictionary<string, List<string>>? PiiFields { get; set; }
     public Dictionary<string, string>? RedactionRules { get; set; }
 }
