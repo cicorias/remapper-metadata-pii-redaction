@@ -1,0 +1,9 @@
+{
+    "profiles": {
+        "console": {
+            "commandName": "Project",
+            "launchBrowser": false,
+            "commandLineArgs": "--metadata=${workspaceFolder}/metadata.json --orders=${workspaceFolder}/orders.csv --orderItems=${workspaceFolder}/order_items.csv",
+        }
+    }
+}

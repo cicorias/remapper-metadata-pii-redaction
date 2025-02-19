@@ -1,0 +1,23 @@
+{
+    "mappings": {
+      "Orders": {
+        "OrderId": "Order_Id",
+        "CustomerName": "Customer_Name",
+        "CustomerEmail": "Customer_Email",
+        "OrderItems": "Items"
+      },
+      "OrderItems": {
+        "OrderItemId": "Item_Id",
+        "OrderId": "Parent_Order_Id",
+        "ProductName": "Product_Name",
+        "Price": "Cost"
+      }
+    },
+    "piiFields": {
+      "Orders": ["CustomerEmail"]
+    },
+    "redactionRules": {
+      "CustomerEmail": "MASK"
+    }
+  }
+  
