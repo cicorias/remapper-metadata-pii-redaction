@@ -1,49 +1,32 @@
-﻿namespace MetadataOne;
+﻿using CommandLine;
+
+namespace MetadataOne;
 
 class Program
 {
+    public class Options
+    {
+        [Option("metadata", Required = true, HelpText = "Path to the metadata JSON file.")]
+        public string? Metadata { get; set; }
+
+        [Option("orders", Required = true, HelpText = "Path to the orders CSV file.")]
+        public string? Orders { get; set; }
+
+        [Option("orderItems", Required = true, HelpText = "Path to the order items CSV file.")]
+        public string? OrderItems { get; set; }
+    }
+
     static void Main(string[] args)
     {
-        var metadataPath = string.Empty;
-        var ordersPath = string.Empty;
-        var orderItemsPath = string.Empty;
+        Parser.Default.ParseArguments<Options>(args)
+            .WithParsed(RunOptions)
+            .WithNotParsed(HandleParseError);
+    }
 
-        var argsDictionary = args.Select(arg => arg.Split('='))
-                                 .ToDictionary(arg => arg[0], arg => arg[1]);
-
-        if (argsDictionary.ContainsKey("--metadata"))
-        {
-            metadataPath = argsDictionary["--metadata"];
-        }
-        else
-        {
-            Console.WriteLine("Metadata path is required. Use --metadata=<path>");
-            return;
-        }
-
-        if (argsDictionary.ContainsKey("--orders"))
-        {
-            ordersPath = argsDictionary["--orders"];
-        }
-        else
-        {
-            Console.WriteLine("Orders path is required. Use --orders=<path>");
-            return;
-        }
-
-        if (argsDictionary.ContainsKey("--orderItems"))
-        {
-            orderItemsPath = argsDictionary["--orderItems"];
-        }
-        else
-        {
-            Console.WriteLine("Order items path is required. Use --orderItems=<path>");
-            return;
-        }
-        var processor = new CsvProcessor(argsDictionary["--metadata"]);
-        var transformedOrders = processor.LoadOrders(
-            argsDictionary["--orders"],
-            argsDictionary["--orderItems"]);
+    static void RunOptions(Options opts)
+    {
+        var processor = new CsvProcessor(opts.Metadata!);
+        var transformedOrders = processor.LoadOrders(opts.Orders!, opts.OrderItems!);
 
         // Save or further process transformedOrders
         foreach (var order in transformedOrders)
@@ -54,6 +37,14 @@ class Program
                 Console.WriteLine($"  Item {item.OrderItemId}: {item.ProductName} - ${item.Price}");
             }
         }
+    }
 
+    static void HandleParseError(IEnumerable<Error> errs)
+    {
+        // Handle errors
+        foreach (var err in errs)
+        {
+            Console.WriteLine(err.ToString());
+        }
     }
 }

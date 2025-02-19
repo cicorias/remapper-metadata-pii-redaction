@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Text.Json;
+
 using CsvHelper;
 using CsvHelper.Configuration;
-using Newtonsoft.Json;
 
+
+namespace MetadataOne;
 public class MetadataConfig
 {
     public Dictionary<string, Dictionary<string, string>>? Mappings { get; set; }
@@ -15,15 +14,24 @@ public class MetadataConfig
 
 public class CsvProcessor
 {
-    private readonly MetadataConfig? _config;
+    private readonly MetadataConfig _config;
 
     public CsvProcessor(string metadataPath)
     {
-        var metadataJson = File.ReadAllText(metadataPath);
-        if (!string.IsNullOrEmpty(metadataJson))
-        { 
-            _config = JsonConvert.DeserializeObject<MetadataConfig>(metadataJson);
+        if (string.IsNullOrWhiteSpace(metadataPath) || !File.Exists(metadataPath))
+        {
+            throw new ArgumentException("Invalid metadata path.");
         }
+
+        string metadataJson = File.ReadAllText(metadataPath);
+        
+        if (string.IsNullOrEmpty(metadataJson))
+        {
+            throw new ArgumentException("Metadata JSON is empty.");
+        }
+
+        var config = JsonSerializer.Deserialize<MetadataConfig>(metadataJson);
+        _config = config ?? throw new ArgumentException("Invalid metadata JSON.");
     }
 
     public List<Order> LoadOrders(string ordersFilePath, string orderItemsFilePath)
@@ -67,7 +75,7 @@ public class CsvProcessor
     private void ApplyTransformations<T>(T record)
     {
         var typeName = typeof(T).Name;
-        if (_config.PiiFields.TryGetValue(typeName, out var piiFields))
+        if (_config.PiiFields != null && _config.PiiFields.TryGetValue(typeName, out var piiFields))
         {
             foreach (var field in piiFields)
             {
@@ -82,7 +90,7 @@ public class CsvProcessor
 
     private string ApplyRedaction(string fieldName, string value)
     {
-        if (_config.RedactionRules.TryGetValue(fieldName, out var rule))
+        if (_config.RedactionRules != null && _config.RedactionRules.TryGetValue(fieldName, out var rule))
         {
             return rule switch
             {

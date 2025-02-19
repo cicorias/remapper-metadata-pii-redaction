@@ -1,3 +1,4 @@
+namespace MetadataOne;
 public class Order
 {
     public int OrderId { get; set; }
